@@ -3,12 +3,14 @@ import configparser
 import datajoint as dj
 
 def build():
-    dj.conn()
+    import data_model.session
+
 
 def set_config(database:str, user:str, pwd:str):
     dj.config['database.host'] = database
     dj.config['database.user'] =  user
     dj.config['database.password'] = pwd
+    dj.config['schema'] = "{}_retinal".format(user)
 
 def main(args):
     if args.config:
