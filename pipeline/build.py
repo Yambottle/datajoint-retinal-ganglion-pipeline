@@ -3,13 +3,17 @@ import configparser
 import datajoint as dj
 
 def build(is_clean:bool):
-    from ingest.session import Session
-    from ingest.stimulation import Stimulation
-    session = Session()
+    from ingest.session import Session, Stimulation
     stimulation = Stimulation()
+    stimulation.describe()
+    session = Session()
+    session.describe()
+    # clean up tables
     if is_clean:
-        session.drop()
+        # TODO - clean up without cmd manually input yes
+        # dropping referenced table will also remove the upper level table, so commented session.drop()
         stimulation.drop()
+        # session.drop()
 
 
 def set_config(database:str, user:str, pwd:str):
@@ -35,6 +39,6 @@ if __name__ == "__main__":
     parser.add_argument('-db', '--database', default=None, help='DataJoint database host')
     parser.add_argument('-u', '--user', default=None, help='DataJoint database user')
     parser.add_argument('-p', '--pwd', default=None, help='DataJoint database password')
-    parser.add_argument('-cln', '--clean', default=False, action='store_true', help='Clean a pipeline')
+    parser.add_argument('-cln', '--clean', default=False, action='store_true', help='Clean tables')
     args = parser.parse_args()
     main(args)
