@@ -1,4 +1,4 @@
-# referenced from https://github.com/int-brain-lab/IBL-pipeline/blob/master/Makefile
+# Referenced from https://github.com/int-brain-lab/IBL-pipeline/blob/master/Makefile
 all:
 	@echo 'MakeFile for IBL pipeline  packaging                                          '
 	@echo '                                                                              '

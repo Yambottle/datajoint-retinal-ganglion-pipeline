@@ -7,6 +7,8 @@ import traceback
 
 from ingest.experiment import Session, Stimulation
 
+# Batched inserts is better but be careful with buffer size: 
+# https://docs.datajoint.io/python/manipulation/1-Insert.html#batched-inserts
 class Loader():
     def __init__(self, metadata:str):
         self.metadata = metadata

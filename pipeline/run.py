@@ -53,9 +53,11 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--pwd', default=None, help='DataJoint database password')
     parser.add_argument('-b', '--build', default=False, action='store_true', help='Build tables')
     parser.add_argument('-cln', '--clean', default=False, action='store_true', help='Drop tables')
-    # TODO - maybe extend load feature to accept universal types from multiple data sources later 
+    # TODO - any industry/academic common data model schema standard available? 
+    # TODO - maybe extend loader's feature to accept universal types from multiple data sources later 
     # such as pickle, csv, JSON file on db or through HTTP request?
-    parser.add_argument('-l', '--load', help='JSON file path: Metadata of data source i.e. metadata.json')
-    # TODO - maybe add a stream loading feature? 
+    # like an universal loader or importer concept for dj.Imported/dj.Manual
+    # TODO - maybe add a loading real-time streaming data feature?
+    parser.add_argument('-l', '--load', help='JSON file path: Metadata of data source i.e. metadata.json') 
     args = parser.parse_args()
     main(args)
