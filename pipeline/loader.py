@@ -20,21 +20,31 @@ class Loader():
         self.datasources = datasources
 
     def load(self):
+        """
+        An abstract function will call a more specific function based on the datasource
+        """
         for datasource in self.datasources:
             source_type, sub_type = datasource['type'].split("/")
-            # call self.load_sourcetype_subtype(datasource) dynamically depending on metadata.json
+            # call self.load_sourcetype_subtype(datasource) dynamically depending on data_source_manifest.json
             try:
+                # TODO - Security: validating data_source_manifest.json prevents injection
                 eval("self.load_{}_{}({})".format(source_type, sub_type, datasource))
             except FileNotFoundError:
                 traceback.print_exc()
     
     def load_file_pickle(self, datasource:dict):
+        """
+        Implementation of load() specifically for pickle files
+
+        :param datasource: a dictionary including pickle file path
+        """
         if os.path.exists(datasource['path']):
             with open(datasource['path'], 'rb') as datafile:
                 data = pickle.load(datafile)
             print(data[0].keys())
             # TODO - insert pandas dataframe not included in the documentation 
             # https://docs.datajoint.io/python/manipulation/1-Insert.html#insert
+
         else:
             raise FileNotFoundError
 

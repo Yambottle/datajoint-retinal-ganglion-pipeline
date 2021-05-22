@@ -11,7 +11,8 @@ def load(datasource_manifest_path:str):
     """
     Load data
 
-    :param datasource_manifest_path: a JSON file that specify datasource with "type/subtype" and detailed access
+    :param datasource_manifest_path: a JSON file that specify datasource with "type/subtype" and detailed access.
+    Prevent confusing terms such as metadata: https://docs.datajoint.io/python/concepts/02-Terminology.html#metadata
     """
     from loader import Loader
     with open(datasource_manifest_path, 'rb') as datasource_json:
