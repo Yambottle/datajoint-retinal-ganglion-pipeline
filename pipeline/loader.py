@@ -10,11 +10,17 @@ from ingest.experiment import Session, Stimulation
 # Batched inserts is better but be careful with buffer size: 
 # https://docs.datajoint.io/python/manipulation/1-Insert.html#batched-inserts
 class Loader():
-    def __init__(self, metadata:str):
-        self.metadata = metadata
+    """
+    Loader can work with dj pipeline to load different types of data from different data sources
+
+    :param datasources: a list of datasources that parsed from the datasource manifest JSON file
+    """
+
+    def __init__(self, datasources:list):
+        self.datasources = datasources
 
     def load(self):
-        for datasource in self.metadata:
+        for datasource in self.datasources:
             source_type, sub_type = datasource['type'].split("/")
             # call self.load_sourcetype_subtype(datasource) dynamically depending on metadata.json
             try:
@@ -27,6 +33,8 @@ class Loader():
             with open(datasource['path'], 'rb') as datafile:
                 data = pickle.load(datafile)
             print(data[0].keys())
+            # TODO - insert pandas dataframe not included in the documentation 
+            # https://docs.datajoint.io/python/manipulation/1-Insert.html#insert
         else:
             raise FileNotFoundError
 
