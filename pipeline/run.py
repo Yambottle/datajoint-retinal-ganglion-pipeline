@@ -1,20 +1,25 @@
 import argparse
 import configparser
 import datajoint as dj
+import json
 
-def load(dfile_path:str):
-    print(dfile_path)
+def load(metadata_path:str):
+    from loader import Loader
+    with open(metadata_path, 'rb') as meta_json:
+        metadata = json.load(meta_json)
+    loader = Loader(metadata)
+    loader.load()
 
 def build(is_clean:bool):
     # in-function import after set_config() can set schema dynamically
-    from ingest.session import Session, Stimulation
+    from ingest.experiment import Session, Stimulation
     stimulation = Stimulation()
     stimulation.describe()
     session = Session()
     session.describe()
     # clean up tables
     if is_clean:
-        # TODO - clean up without cmd manually input yes
+        # TODO - Automation: clean up without cmd manually input yes
         # dropping referenced table will also remove the upper level table, so commented session.drop()
         stimulation.drop()
         # session.drop()
@@ -47,7 +52,10 @@ if __name__ == "__main__":
     parser.add_argument('-u', '--user', default=None, help='DataJoint database user')
     parser.add_argument('-p', '--pwd', default=None, help='DataJoint database password')
     parser.add_argument('-b', '--build', default=False, action='store_true', help='Build tables')
-    parser.add_argument('-cln', '--clean', default=False, action='store_true', help='Clean tables')
-    parser.add_argument('-l', '--load', default=None, help='Data file path that needs to be loaded')
+    parser.add_argument('-cln', '--clean', default=False, action='store_true', help='Drop tables')
+    # TODO - maybe extend load feature to accept universal types from multiple data sources later 
+    # such as pickle, csv, JSON file on db or through HTTP request?
+    parser.add_argument('-l', '--load', help='JSON file path: Metadata of data source i.e. metadata.json')
+    # TODO - maybe add a stream loading feature? 
     args = parser.parse_args()
     main(args)
