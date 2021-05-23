@@ -9,7 +9,7 @@ import traceback
 logger = logging.getLogger(__name__)
 
 def test():
-    from ingest.experiment import Session, Subject, Stimulation
+    from ingest.experiment import Session, Subject, Stimulation, Spike
 
     print(Subject.describe())
     print(Subject.fetch())
@@ -17,6 +17,8 @@ def test():
     print(Session.fetch())
     print(Stimulation.describe())
     print(Stimulation.fetch('stimulation_id'))
+    print(Spike.describe())
+    print(Spike.fetch('spike_id', 'stimulation_id'))
 
 def load(datasource_manifest_path:str):
     """
@@ -46,7 +48,9 @@ def build(is_clean:bool):
     :param is_clean: Drop tables or not
     """
     # in-function import after set_config() can set schema dynamically
-    from ingest.experiment import Session, Subject, Stimulation
+    from ingest.experiment import Session, Subject, Stimulation, Spike
+    spike = Spike()
+    spike.describe()
     stimulation = Stimulation()
     stimulation.describe()
     subject = Subject()
@@ -56,8 +60,9 @@ def build(is_clean:bool):
     # clean up tables
     if is_clean:
         # TODO - Automation: clean up without cmd manually input yes
-        stimulation.drop()
+        spike.drop()
         subject.drop()
+        stimulation.drop()
         # dropping referenced table will also remove the upper level table, so commented session.drop()
         # session.drop()
 

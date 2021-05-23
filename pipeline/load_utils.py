@@ -2,7 +2,7 @@ import os
 import pickle
 import numpy as np
 
-from ingest.experiment import Session, Subject, Stimulation
+from ingest.experiment import Session, Subject, Stimulation, Spike
 
 def load_file_pickle(datasource:dict):
     """
@@ -10,6 +10,7 @@ def load_file_pickle(datasource:dict):
 
     :param datasource: a dictionary including pickle file path
     """
+    # TODO - Maybe can optimize this process by https://docs.datajoint.io/python/computation/01-autopopulate.html#auto-populate
     if os.path.exists(datasource['path']):
         with open(datasource['path'], 'rb') as datafile:
             data = pickle.load(datafile)
@@ -18,6 +19,7 @@ def load_file_pickle(datasource:dict):
         subjects = []
         stimulations = []
         stimulation_idx = len(Stimulation.fetch('stimulation_id'))+1
+        spikes = []
         for session in data:
             # Subject
             if session['subject_name'] not in subject_names:
@@ -48,7 +50,6 @@ def load_file_pickle(datasource:dict):
                     ])
                     # Stimulations
                     stimulation = session['stimulations'][idx]
-                    stimulation_spikes = np.array(stimulation['spikes'], dtype=object)
                     stimulations.append([ 
                         None,
                         stimulation['fps'], 
@@ -59,17 +60,29 @@ def load_file_pickle(datasource:dict):
                         stimulation['stim_width'], 
                         stimulation['stimulus_onset'], 
                         stimulation['x_block_size'], 
-                        stimulation['y_block_size'], 
-                        stimulation_spikes.tobytes()
+                        stimulation['y_block_size']
                     ])
+                    for spike in stimulation['spikes']:
+                        stimulation_spikes = np.array(spike, dtype=object)
+                        spikes.append([
+                            None, 
+                            stimulation_idx,
+                            stimulation_spikes.tobytes()
+                        ])
                     stimulation_idx += 1
 
-        print("Loading Subject...")
+        print("Loading Subjects...")
         Subject.insert(subjects)
         print(Subject.fetch())
+        
         print("Loading Stimulations...")
         Stimulation.insert(stimulations)
         print(Stimulation.fetch('stimulation_id', 'fps', 'n_frames', 'pixel_size', 'stimulus_onset'))
+
+        print("Loading Spikes...")
+        Spike.insert(spikes)
+        print(Spike.fetch('spike_id', 'stimulation_id'))
+
         print("Loading Sessions...")
         Session.insert(sessions)
         print(Session.fetch())
