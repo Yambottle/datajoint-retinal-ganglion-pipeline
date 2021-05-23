@@ -3,6 +3,7 @@ import configparser
 import datajoint as dj
 import json
 import logging
+import traceback
 
 # TODO - logger not working right now
 logger = logging.getLogger(__name__)
@@ -14,11 +15,18 @@ def load(datasource_manifest_path:str):
     :param datasource_manifest_path: a JSON file that specify datasource with "type/subtype" and detailed access.
     Prevent confusing terms such as metadata: https://docs.datajoint.io/python/concepts/02-Terminology.html#metadata
     """
-    from loader import Loader
+    import load_utils
     with open(datasource_manifest_path, 'rb') as datasource_json:
         datasources = json.load(datasource_json)
-    loader = Loader(datasources)
-    loader.load()
+    try:
+        for datasource in datasources:
+            if datasource['type'] == "file/pickle":
+                load_utils.load_file_pickle(datasource)
+            # elif datasource['type'] == "file/csv":
+            #     load_utils.load_file_csv(datasource)
+            # .... extensible for other types
+    except FileNotFoundError:
+        traceback.print_exc()
 
 def build(is_clean:bool):
     """
@@ -72,7 +80,7 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--pwd', default=None, help='DataJoint database password')
     parser.add_argument('-b', '--build', default=False, action='store_true', help='Build tables')
     parser.add_argument('-cln', '--clean', default=False, action='store_true', help='Drop tables')
-    # TODO - any industry/academic pre-defined common data model schema standard available? 
+    # TODO - any industrial/academic pre-defined common data model schema standard available? 
     # TODO - maybe extend loader's feature to accept universal types from multiple data sources later 
     # such as pickle, csv, JSON file on db or through HTTP request?
     # like an universal loader or importer concept for dj.Imported/dj.Manual

@@ -7,6 +7,21 @@ import traceback
 
 from ingest.experiment import Session, Stimulation
 
+## This implementation is not able to accept user's customized loading process, since the data's format is not standardized 
+# def load(datasource_manifest_path:str):
+#     """
+#     Load data
+
+#     :param datasource_manifest_path: a JSON file that specify datasource with "type/subtype" and detailed access.
+#     Prevent confusing terms such as metadata: https://docs.datajoint.io/python/concepts/02-Terminology.html#metadata
+#     """
+#     from loader import Loader
+#     with open(datasource_manifest_path, 'rb') as datasource_json:
+#         datasources = json.load(datasource_json)
+#     loader = Loader(datasources)
+#     loader.load()
+
+
 # Batched inserts is better but be careful with buffer size: 
 # https://docs.datajoint.io/python/manipulation/1-Insert.html#batched-inserts
 class Loader():
@@ -21,7 +36,7 @@ class Loader():
 
     def load(self):
         """
-        An abstract function will call a more specific function based on the datasource
+        Act like an abstract function will call a more specific function based on the datasource
         """
         for datasource in self.datasources:
             source_type, sub_type = datasource['type'].split("/")
