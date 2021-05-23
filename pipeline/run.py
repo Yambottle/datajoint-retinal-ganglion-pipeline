@@ -8,6 +8,16 @@ import traceback
 # TODO - logger not working right now
 logger = logging.getLogger(__name__)
 
+def test():
+    from ingest.experiment import Session, Subject, Stimulation
+
+    print(Subject.describe())
+    print(Subject.fetch())
+    print(Session.describe())
+    print(Session.fetch())
+    print(Stimulation.describe())
+    print(Stimulation.fetch('stimulation_id'))
+
 def load(datasource_manifest_path:str):
     """
     Load data
@@ -15,6 +25,7 @@ def load(datasource_manifest_path:str):
     :param datasource_manifest_path: a JSON file that specify datasource with "type/subtype" and detailed access.
     Prevent confusing terms such as metadata: https://docs.datajoint.io/python/concepts/02-Terminology.html#metadata
     """
+    # in-function import after set_config() can set schema dynamically
     import load_utils
     with open(datasource_manifest_path, 'rb') as datasource_json:
         datasources = json.load(datasource_json)
@@ -35,16 +46,19 @@ def build(is_clean:bool):
     :param is_clean: Drop tables or not
     """
     # in-function import after set_config() can set schema dynamically
-    from ingest.experiment import Session, Stimulation
+    from ingest.experiment import Session, Subject, Stimulation
     stimulation = Stimulation()
     stimulation.describe()
+    subject = Subject()
+    subject.describe()
     session = Session()
     session.describe()
     # clean up tables
     if is_clean:
         # TODO - Automation: clean up without cmd manually input yes
-        # dropping referenced table will also remove the upper level table, so commented session.drop()
         stimulation.drop()
+        subject.drop()
+        # dropping referenced table will also remove the upper level table, so commented session.drop()
         # session.drop()
 
 def set_config(database:str, user:str, pwd:str):
@@ -56,6 +70,7 @@ def set_config(database:str, user:str, pwd:str):
     dj.config['database.password'] = pwd
     # use dj.config to pass schema name dynamically
     dj.config['schema'] = "{}_retinal".format(user)
+    # dj.config['fetch_format'] = 'frame'
     print(dj.config)
 
 def main(args):
@@ -72,6 +87,9 @@ def main(args):
     if args.load:
         load(args.load)
 
+    if args.test:
+        test()
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', default=None, help='DataJoint database config file path')
@@ -86,5 +104,6 @@ if __name__ == "__main__":
     # like an universal loader or importer concept for dj.Imported/dj.Manual
     # TODO - maybe add a loading real-time streaming data feature?
     parser.add_argument('-l', '--load', help='JSON file path: specifies multiple data sources i.e. data_source_manifest.json') 
+    parser.add_argument('-t', '--test', default=False, action='store_true', help='Whether or not to run test')
     args = parser.parse_args()
     main(args)

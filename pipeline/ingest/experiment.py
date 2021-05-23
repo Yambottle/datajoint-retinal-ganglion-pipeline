@@ -6,7 +6,7 @@ schema = dj.schema(dj.config['schema'], locals())
 class Stimulation(dj.Manual):
     definition = """
     # represent a stimulation during a experimental session
-    stimulation_id: int # unique stimulation id
+    stimulation_id: int auto_increment # unique stimulation id
     ---
     fps: float # movie frequency: frame per second
     movie: longblob # movie numpy array: The array is shaped as (horizontal blocks, vertical blocks, frames).
@@ -21,12 +21,23 @@ class Stimulation(dj.Manual):
     """
 
 @schema
+class Subject(dj.Manual):
+    definition = """
+    # represent a subject that will be used in an experiment
+    subject_id: int auto_increment # unique subject id
+    ---
+    subject_name: varchar(50) # experimental subject's name
+    """
+
+@schema
 class Session(dj.Manual):
     definition = """
     # represent a single experimental session with a sample of mouse retina
-    sample_number: int # unique sample id
-    ->Stimulation
+    session_id: int auto_increment # unique sample id
     ---
-    subject_name: varchar(50) # experimental subject's name
+    sample_number: int # sample number
     session_date: date # experiment date
+    ->Subject
+    ->[nullable] Stimulation
     """
+    # subject_name: varchar(50) # experimental subject's name
