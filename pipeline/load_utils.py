@@ -62,6 +62,7 @@ def load_file_pickle(datasource:dict):
                         stimulation['x_block_size'], 
                         stimulation['y_block_size']
                     ])
+                    # Spikes of one stimulation 
                     for spike in stimulation['spikes']:
                         stimulation_spikes = np.array(spike, dtype=object)
                         spikes.append([
