@@ -46,6 +46,7 @@ def load_file_pickle(datasource:dict):
                         np.where(subject_names==session['subject_name'])[0][0]+1,
                         stimulation_idx, 
                     ])
+                    # Stimulations
                     stimulation = session['stimulations'][idx]
                     stimulation_spikes = np.array(stimulation['spikes'], dtype=object)
                     stimulations.append([ 
@@ -76,7 +77,7 @@ def load_file_pickle(datasource:dict):
     else:
         raise FileNotFoundError
 
-# TODO - since these data sources are not required in this specific task, ignore implementation for now
+# TODO - since these data sources are not required in this specific task, ignore these implementation for now
 # def load_file_csv(datasource:dict):
 #     pass
 

@@ -35,7 +35,7 @@ def load(datasource_manifest_path:str):
                 load_utils.load_file_pickle(datasource)
             # elif datasource['type'] == "file/csv":
             #     load_utils.load_file_csv(datasource)
-            # .... extensible for other types
+            # .... extensible for other data source types
     except FileNotFoundError:
         traceback.print_exc()
 
