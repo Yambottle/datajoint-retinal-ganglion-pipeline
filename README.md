@@ -1,5 +1,7 @@
 # datajoint-retinal-ganglion-pipeline
 
+setup.py is not ready
+
 ## Pipeline
 
 ```
