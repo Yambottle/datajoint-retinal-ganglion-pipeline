@@ -2,7 +2,8 @@ import os
 import pickle
 import numpy as np
 
-from ingest.experiment import Session, Subject, Stimulation
+from ingest.experiment import Session, Subject, Stimulation, SpikeGroup, Spike
+import compute_utils as cpt_util
 
 def load_file_pickle(datasource:dict):
     """
@@ -10,6 +11,7 @@ def load_file_pickle(datasource:dict):
 
     :param datasource: a dictionary including pickle file path
     """
+    # TODO - Maybe can optimize this process by https://docs.datajoint.io/python/computation/01-autopopulate.html#auto-populate
     if os.path.exists(datasource['path']):
         with open(datasource['path'], 'rb') as datafile:
             data = pickle.load(datafile)
@@ -18,6 +20,9 @@ def load_file_pickle(datasource:dict):
         subjects = []
         stimulations = []
         stimulation_idx = len(Stimulation.fetch('stimulation_id'))+1
+        spike_groups = []
+        spike_group_idx = len(SpikeGroup.fetch('spike_group_id'))+1
+        spikes = []
         for session in data:
             # Subject
             if session['subject_name'] not in subject_names:
@@ -48,7 +53,6 @@ def load_file_pickle(datasource:dict):
                     ])
                     # Stimulations
                     stimulation = session['stimulations'][idx]
-                    stimulation_spikes = np.array(stimulation['spikes'], dtype=object)
                     stimulations.append([ 
                         None,
                         stimulation['fps'], 
@@ -59,17 +63,56 @@ def load_file_pickle(datasource:dict):
                         stimulation['stim_width'], 
                         stimulation['stimulus_onset'], 
                         stimulation['x_block_size'], 
-                        stimulation['y_block_size'], 
-                        stimulation_spikes.tobytes()
+                        stimulation['y_block_size']
                     ])
+                    # Spikes of one stimulation 
+                    for spike_group in stimulation['spikes']:
+                        spike_groups.append([
+                            None, 
+                            stimulation_idx,
+                        ])
+                        for spike_idx in range(len(spike_group)):
+                            spike_time = spike_group[spike_idx]
+                            spike_movie_time = spike_time[0]-stimulation['stimulus_onset']
+                            sta = cpt_util.get_sta(stimulation, spike_movie_time)
+                            # print(sta)
+                            # raise ValueError("debug stop")
+                            if sta is not None:
+                                spikes.append([
+                                    None,
+                                    spike_time[0],
+                                    spike_movie_time,
+                                    sta.tobytes(),
+                                    spike_group_idx
+                                ])
+                            else:
+                                spikes.append([
+                                    None,
+                                    spike_time[0],
+                                    spike_movie_time,
+                                    None,
+                                    spike_group_idx
+                                ])
+                        spike_group_idx += 1
+                        # raise ValueError("debug stop")
                     stimulation_idx += 1
 
-        print("Loading Subject...")
+        print("Loading Subjects...")
         Subject.insert(subjects)
         print(Subject.fetch())
+        
         print("Loading Stimulations...")
         Stimulation.insert(stimulations)
         print(Stimulation.fetch('stimulation_id', 'fps', 'n_frames', 'pixel_size', 'stimulus_onset'))
+
+        print("Loading SpikeGroups...")
+        SpikeGroup.insert(spike_groups)
+        print(SpikeGroup.fetch())
+
+        print("Loading Spikes...")
+        Spike.insert(spikes)
+        print(Spike.fetch('spike_id', 'spike_time', 'spike_movie_time', 'spike_group_id'))
+
         print("Loading Sessions...")
         Session.insert(sessions)
         print(Session.fetch())

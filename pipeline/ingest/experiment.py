@@ -5,7 +5,7 @@ schema = dj.schema(dj.config['schema'], locals())
 @schema
 class Stimulation(dj.Manual):
     definition = """
-    # represent a stimulation during a experimental session
+    # represent a stimulation during a experiment session
     stimulation_id: int auto_increment # unique stimulation id
     ---
     fps: float # movie frequency: frame per second
@@ -17,7 +17,28 @@ class Stimulation(dj.Manual):
     stimulus_onset: float # onset of the stimulus from the beginning of the recording session in seconds
     x_block_size: int # size of x (horizontal) blocks in pixels
     y_block_size: int # size of y (vertical) blocks in pixels
-    spikes: longblob # a list of spike times for recorded retinal neurons.
+    """
+
+@schema
+class SpikeGroup(dj.Manual):
+    # TODO - maybe call it SpikeGroup of a retinal neuron?
+    definition = """
+    # represent a group of spike records from a stimulation
+    spike_group_id: int auto_increment # unique spike group id
+    ---
+    ->Stimulation
+    """
+
+@schema
+class Spike(dj.Manual):
+    definition = """
+    # represent a spike records from a spike group
+    spike_id: int auto_increment # unique spike group id
+    ---
+    spike_time: float # spike time recorded from the beginning of the session
+    spike_movie_time: float # spike time excludes stimulus onset, recorded from the beginning of the movie
+    sta = NULL : longblob # 2d array of STA
+    ->SpikeGroup
     """
 
 @schema
