@@ -1,4 +1,11 @@
-# datajoint-retinal-ganglion-pipeline
+# Datajoint Retinal Ganglion Pipeline
+
+## Table of Content
+- [Pipeline](#pipeline)
+- [Visualization](#visualization)
+- [Exploration](#exploration)
+
+---
 
 ## Pipeline
 
@@ -23,6 +30,10 @@ Data Loader: ~/pipeline/load_utils.py
 ### STRF Calculation
 Data Loader: ~/pipeline/compute_utils.py
 
+[Back To Top](#datajoint-retinal-ganglion-pipeline)
+
+---
+
 ## Visualization
 ```
 # setup database configuration ~/visualization/config.ini
@@ -37,6 +48,10 @@ python ./visualization/app.py
 ### Plot
 ./visualization/plot_utils.py
 
+[Back To Top](#datajoint-retinal-ganglion-pipeline)
+
+---
+
 ## Exploration
 ```
 # STRF
@@ -47,7 +62,13 @@ python ./visualization/app.py
 ~/notebooks/db_conn_test.ipynb
 ```
 
+[Back To Top](#datajoint-retinal-ganglion-pipeline)
+
+---
+
 - setup.py is not ready
 - documation is not ready
 - ERD is not ready
 - STRF calculation has problem
+
+[Back To Top](#datajoint-retinal-ganglion-pipeline)
