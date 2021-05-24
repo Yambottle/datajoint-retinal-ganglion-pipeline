@@ -37,6 +37,7 @@ class Spike(dj.Manual):
     ---
     spike_time: float # spike time recorded from the beginning of the session
     spike_movie_time: float # spike time excludes stimulus onset, recorded from the beginning of the movie
+    sta = NULL : longblob # 2d array of STA
     ->SpikeGroup
     """
 

@@ -75,36 +75,47 @@ def load_file_pickle(datasource:dict):
                             spike_time = spike_group[spike_idx]
                             spike_movie_time = spike_time[0]-stimulation['stimulus_onset']
                             sta = cpt_util.get_sta(stimulation, spike_movie_time)
-                            print(sta)
-                            spikes.append([
-                                None,
-                                spike_time[0],
-                                spike_movie_time,
-                                spike_group_idx
-                            ])
+                            # print(sta)
+                            # raise ValueError("debug stop")
+                            if sta is not None:
+                                spikes.append([
+                                    None,
+                                    spike_time[0],
+                                    spike_movie_time,
+                                    sta.tobytes(),
+                                    spike_group_idx
+                                ])
+                            else:
+                                spikes.append([
+                                    None,
+                                    spike_time[0],
+                                    spike_movie_time,
+                                    None,
+                                    spike_group_idx
+                                ])
                         spike_group_idx += 1
                         # raise ValueError("debug stop")
                     stimulation_idx += 1
 
-        # print("Loading Subjects...")
-        # Subject.insert(subjects)
-        # print(Subject.fetch())
+        print("Loading Subjects...")
+        Subject.insert(subjects)
+        print(Subject.fetch())
         
-        # print("Loading Stimulations...")
-        # Stimulation.insert(stimulations)
-        # print(Stimulation.fetch('stimulation_id', 'fps', 'n_frames', 'pixel_size', 'stimulus_onset'))
+        print("Loading Stimulations...")
+        Stimulation.insert(stimulations)
+        print(Stimulation.fetch('stimulation_id', 'fps', 'n_frames', 'pixel_size', 'stimulus_onset'))
 
-        # print("Loading SpikeGroups...")
-        # SpikeGroup.insert(spike_groups)
-        # print(SpikeGroup.fetch())
+        print("Loading SpikeGroups...")
+        SpikeGroup.insert(spike_groups)
+        print(SpikeGroup.fetch())
 
-        # print("Loading Spikes...")
-        # Spike.insert(spikes)
-        # print(Spike.fetch())
+        print("Loading Spikes...")
+        Spike.insert(spikes)
+        print(Spike.fetch('spike_id', 'spike_time', 'spike_movie_time', 'spike_group_id'))
 
-        # print("Loading Sessions...")
-        # Session.insert(sessions)
-        # print(Session.fetch())
+        print("Loading Sessions...")
+        Session.insert(sessions)
+        print(Session.fetch())
 
     else:
         raise FileNotFoundError
