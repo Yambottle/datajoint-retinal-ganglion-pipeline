@@ -22,11 +22,12 @@ def load_file_pickle(datasource:dict):
         stimulation_idx = len(Stimulation.fetch('stimulation_id'))+1
         spike_groups = []
         spike_group_idx = len(SpikeGroup.fetch('spike_group_id'))+1
-        spikes = []
+        # spikes = []
         for session in data:
             # Subject
             if session['subject_name'] not in subject_names:
-                subjects.append([ 
+                print("Insert subject: {}".format(session['subject_name']))
+                Subject.insert1([ 
                     None,
                     session['subject_name']
                 ])
@@ -34,6 +35,7 @@ def load_file_pickle(datasource:dict):
             
             # Session without Stimulations
             if len(session['stimulations'])==0:
+                print("Append session without stimulation")
                 sessions.append([ 
                     None,
                     session['sample_number'], 
@@ -44,6 +46,7 @@ def load_file_pickle(datasource:dict):
             # Session with Stimulations
             else:
                 for idx in range(len(session['stimulations'])):
+                    print("Append session with stimulation")
                     sessions.append([ 
                         None,
                         session['sample_number'], 
@@ -53,7 +56,8 @@ def load_file_pickle(datasource:dict):
                     ])
                     # Stimulations
                     stimulation = session['stimulations'][idx]
-                    stimulations.append([ 
+                    print("Insert stimulation: {}".format(stimulation_idx))
+                    Stimulation.insert1([ 
                         None,
                         stimulation['fps'], 
                         stimulation['movie'].tobytes(), 
@@ -67,7 +71,8 @@ def load_file_pickle(datasource:dict):
                     ])
                     # Spikes of one stimulation 
                     for spike_group in stimulation['spikes']:
-                        spike_groups.append([
+                        print("Insert spike_group: {}".format(spike_group_idx))
+                        SpikeGroup.insert1([
                             None, 
                             stimulation_idx,
                         ])
@@ -77,8 +82,10 @@ def load_file_pickle(datasource:dict):
                             sta = cpt_util.get_sta(stimulation, spike_movie_time)
                             # print(sta)
                             # raise ValueError("debug stop")
+                            # Memory Error: if use spikes array
                             if sta is not None:
-                                spikes.append([
+                                print("Insert spike with STA")
+                                Spike.insert1([
                                     None,
                                     spike_time[0],
                                     spike_movie_time,
@@ -86,7 +93,8 @@ def load_file_pickle(datasource:dict):
                                     spike_group_idx
                                 ])
                             else:
-                                spikes.append([
+                                print("Insert spike without STA")
+                                Spike.insert1([
                                     None,
                                     spike_time[0],
                                     spike_movie_time,
@@ -97,21 +105,21 @@ def load_file_pickle(datasource:dict):
                         # raise ValueError("debug stop")
                     stimulation_idx += 1
 
-        print("Loading Subjects...")
-        Subject.insert(subjects)
-        print(Subject.fetch())
+        # print("Loading Subjects...")
+        # Subject.insert(subjects)
+        # print(Subject.fetch())
         
-        print("Loading Stimulations...")
-        Stimulation.insert(stimulations)
-        print(Stimulation.fetch('stimulation_id', 'fps', 'n_frames', 'pixel_size', 'stimulus_onset'))
+        # print("Loading Stimulations...")
+        # Stimulation.insert(stimulations)
+        # print(Stimulation.fetch('stimulation_id', 'fps', 'n_frames', 'pixel_size', 'stimulus_onset'))
 
-        print("Loading SpikeGroups...")
-        SpikeGroup.insert(spike_groups)
-        print(SpikeGroup.fetch())
+        # print("Loading SpikeGroups...")
+        # SpikeGroup.insert(spike_groups)
+        # print(SpikeGroup.fetch())
 
-        print("Loading Spikes...")
-        Spike.insert(spikes)
-        print(Spike.fetch('spike_id', 'spike_time', 'spike_movie_time', 'spike_group_id'))
+        # print("Loading Spikes...")
+        # Spike.insert(spikes)
+        # print(Spike.fetch('spike_id', 'spike_time', 'spike_movie_time', 'spike_group_id'))
 
         print("Loading Sessions...")
         Session.insert(sessions)

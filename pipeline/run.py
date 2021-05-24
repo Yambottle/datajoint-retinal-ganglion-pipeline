@@ -9,7 +9,7 @@ import traceback
 logger = logging.getLogger(__name__)
 
 def test():
-    from ingest.experiment import Session, Subject, Stimulation, Spike
+    from ingest.experiment import Session, Subject, Stimulation, SpikeGroup, Spike
 
     print(Subject.describe())
     print(Subject.fetch())
@@ -18,7 +18,7 @@ def test():
     print(Stimulation.describe())
     print(Stimulation.fetch('stimulation_id'))
     print(Spike.describe())
-    print(Spike.fetch('spike_id', 'stimulation_id'))
+    print(Spike.fetch('spike_id', 'spike_time', 'spike_movie_time', 'spike_group_id'))
 
 def load(datasource_manifest_path:str):
     """
