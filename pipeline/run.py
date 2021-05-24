@@ -48,11 +48,13 @@ def build(is_clean:bool):
     :param is_clean: Drop tables or not
     """
     # in-function import after set_config() can set schema dynamically
-    from ingest.experiment import Session, Subject, Stimulation, Spike
-    spike = Spike()
-    spike.describe()
+    from ingest.experiment import Session, Subject, Stimulation, SpikeGroup, Spike
     stimulation = Stimulation()
     stimulation.describe()
+    spikegroup = SpikeGroup()
+    spikegroup.describe()
+    spike = Spike()
+    spike.describe()
     subject = Subject()
     subject.describe()
     session = Session()
@@ -60,9 +62,8 @@ def build(is_clean:bool):
     # clean up tables
     if is_clean:
         # TODO - Automation: clean up without cmd manually input yes
-        spike.drop()
-        subject.drop()
         stimulation.drop()
+        subject.drop()
         # dropping referenced table will also remove the upper level table, so commented session.drop()
         # session.drop()
 

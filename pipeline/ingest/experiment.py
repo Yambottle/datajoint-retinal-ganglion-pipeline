@@ -20,13 +20,24 @@ class Stimulation(dj.Manual):
     """
 
 @schema
-class Spike(dj.Manual):
+class SpikeGroup(dj.Manual):
+    # TODO - maybe call it SpikeGroup of a retinal neuron?
     definition = """
-    # represent a spike recorded from a stimulation
-    spike_id: int auto_increment # unique spike id
+    # represent a group of spike records from a stimulation
+    spike_group_id: int auto_increment # unique spike group id
     ---
     ->Stimulation
-    spikes: longblob # a list of spike times for recorded retinal neurons.
+    """
+
+@schema
+class Spike(dj.Manual):
+    definition = """
+    # represent a spike records from a spike group
+    spike_id: int auto_increment # unique spike group id
+    ---
+    spike_time: float # spike time recorded from the beginning of the session
+    spike_movie_time: float # spike time excludes stimulus onset, recorded from the beginning of the movie
+    ->SpikeGroup
     """
 
 @schema

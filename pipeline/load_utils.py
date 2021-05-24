@@ -2,7 +2,8 @@ import os
 import pickle
 import numpy as np
 
-from ingest.experiment import Session, Subject, Stimulation, Spike
+from ingest.experiment import Session, Subject, Stimulation, SpikeGroup, Spike
+import compute_utils as cpt_util
 
 def load_file_pickle(datasource:dict):
     """
@@ -19,6 +20,8 @@ def load_file_pickle(datasource:dict):
         subjects = []
         stimulations = []
         stimulation_idx = len(Stimulation.fetch('stimulation_id'))+1
+        spike_groups = []
+        spike_group_idx = len(SpikeGroup.fetch('spike_group_id'))+1
         spikes = []
         for session in data:
             # Subject
@@ -63,30 +66,45 @@ def load_file_pickle(datasource:dict):
                         stimulation['y_block_size']
                     ])
                     # Spikes of one stimulation 
-                    for spike in stimulation['spikes']:
-                        stimulation_spikes = np.array(spike, dtype=object)
-                        spikes.append([
+                    for spike_group in stimulation['spikes']:
+                        spike_groups.append([
                             None, 
                             stimulation_idx,
-                            stimulation_spikes.tobytes()
                         ])
+                        for spike_idx in range(len(spike_group)):
+                            spike_time = spike_group[spike_idx]
+                            spike_movie_time = spike_time[0]-stimulation['stimulus_onset']
+                            sta = cpt_util.get_sta(stimulation, spike_movie_time)
+                            print(sta)
+                            spikes.append([
+                                None,
+                                spike_time[0],
+                                spike_movie_time,
+                                spike_group_idx
+                            ])
+                        spike_group_idx += 1
+                        # raise ValueError("debug stop")
                     stimulation_idx += 1
 
-        print("Loading Subjects...")
-        Subject.insert(subjects)
-        print(Subject.fetch())
+        # print("Loading Subjects...")
+        # Subject.insert(subjects)
+        # print(Subject.fetch())
         
-        print("Loading Stimulations...")
-        Stimulation.insert(stimulations)
-        print(Stimulation.fetch('stimulation_id', 'fps', 'n_frames', 'pixel_size', 'stimulus_onset'))
+        # print("Loading Stimulations...")
+        # Stimulation.insert(stimulations)
+        # print(Stimulation.fetch('stimulation_id', 'fps', 'n_frames', 'pixel_size', 'stimulus_onset'))
 
-        print("Loading Spikes...")
-        Spike.insert(spikes)
-        print(Spike.fetch('spike_id', 'stimulation_id'))
+        # print("Loading SpikeGroups...")
+        # SpikeGroup.insert(spike_groups)
+        # print(SpikeGroup.fetch())
 
-        print("Loading Sessions...")
-        Session.insert(sessions)
-        print(Session.fetch())
+        # print("Loading Spikes...")
+        # Spike.insert(spikes)
+        # print(Spike.fetch())
+
+        # print("Loading Sessions...")
+        # Session.insert(sessions)
+        # print(Session.fetch())
 
     else:
         raise FileNotFoundError
