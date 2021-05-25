@@ -213,8 +213,8 @@ python ./visualization/app.py
 
 #### Plotting Module
 `./visualization/plot_utils.py`
-- `plot_frame(n_frames:int, frame:np.ndarray)`: plot the current selected spike's frame
-- `plot_sta(n_frames:int, n_frames_of_delay:int, sta:np.ndarray)`: plot the STA that averaged by the selected spike's frame and the number of previous frames
+- `plot_frame(n_frames:int, frame:np.ndarray)->go.Figure()`: plot the current selected spike's frame
+- `plot_sta(n_frames:int, n_frames_of_delay:int, sta:np.ndarray)->go.Figure()`: plot the STA that averaged by the selected spike's frame and the number of previous frames
 
 [Back To Top](#datajoint-retinal-ganglion-pipeline)
 

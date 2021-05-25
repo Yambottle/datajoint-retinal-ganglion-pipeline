@@ -1,7 +1,7 @@
 import numpy as np
 import plotly.graph_objects as go
 
-def plot_frame(n_frames:int, frame:np.ndarray):
+def plot_frame(n_frames:int, frame:np.ndarray)->go.Figure():
     """
     Plot a frame
 
@@ -20,7 +20,7 @@ def plot_frame(n_frames:int, frame:np.ndarray):
     
     return fig
 
-def plot_sta(n_frames:int, n_frames_of_delay:int, sta:np.ndarray):
+def plot_sta(n_frames:int, n_frames_of_delay:int, sta:np.ndarray)->go.Figure():
     """
     Plot a STA of several delays of a frame
 
