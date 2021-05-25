@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import math
 
-# Take the total of 5 frames before the spike detected to calculate STA 
+# By default, take the total of 5 frames before the spike detected to calculate STA 
 STA_DELAY = 5
 
 def get_sta(stimulation:dict, movie:np.ndarray, spike_movie_time:float, n_delays:int=STA_DELAY)->np.ndarray:
