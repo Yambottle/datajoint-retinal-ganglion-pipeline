@@ -10,7 +10,7 @@
     - [Data Model](#data-model)
         - [ERD](#erd)
         - [Model Definition](#model-definition)
-        - [Found Error on macOS](#model-definition)
+        - [Found Error on macOS](#found-error-on-macos)
     - [Data Loader](#data-loader)
         - [Legacy Loader](#legacy-loader)
         - [Data Loading Module](#data-loading-module)
@@ -108,8 +108,8 @@ Data source manifest is designed to register multiple datasources with multiple 
 
 > Note: Data Loading part can still be optimized by Model Definition that using dj.Imported/dj.Computed https://tutorials.datajoint.io/beginner/building-first-pipeline/python/importing-data.html
 
-
-**Error: dj.ERD for macOS 11.1 dependency error**
+##### Found Error on macOS
+Error: dj.ERD for macOS 11.1 dependency error
 ```
 Traceback (most recent call last):
   File "./pipeline/run.py", line 137, in <module>
