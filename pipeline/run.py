@@ -1,3 +1,4 @@
+import os
 import argparse
 import configparser
 import datajoint as dj
@@ -17,8 +18,20 @@ def test():
     print(Session.fetch())
     print(Stimulation.describe())
     print(Stimulation.fetch('stimulation_id'))
+    print(SpikeGroup.describe())
+    print(SpikeGroup.fetch())
     print(Spike.describe())
     print(Spike.fetch('spike_id', 'spike_time', 'spike_movie_time', 'spike_group_id'))
+
+def plot_erd(tpath:str):
+    """
+    Plot ERD and save it at current work directory
+    
+    :param tpath: target path
+    """
+    # schema = dj.Schema(dj.config['schema'])
+    # dj.ERD(schema).save(os.path.join(tpath, 'ERD.svg'), format='svg') # Error
+    pass
 
 def load(datasource_manifest_path:str):
     """
@@ -99,6 +112,11 @@ def main(args):
     if args.test:
         test()
 
+    if args.erd:
+        if os.path.exists(args.erd):
+            tpath = os.path.join(os.getcwd(), args.erd)
+            plot_erd(tpath)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', default=None, help='DataJoint database config file path')
@@ -107,12 +125,13 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--pwd', default=None, help='DataJoint database password')
     parser.add_argument('-b', '--build', default=False, action='store_true', help='Build tables')
     parser.add_argument('-cln', '--clean', default=False, action='store_true', help='Drop tables')
-    # TODO - any industrial/academic pre-defined common data model schema standard available? 
-    # TODO - maybe extend loader's feature to accept universal types from multiple data sources later 
+    # any industrial/academic pre-defined common data model schema standard available? 
+    # maybe extend loader's feature to accept universal types from multiple data sources later 
     # such as pickle, csv, JSON file on db or through HTTP request?
     # like an universal loader or importer concept for dj.Imported/dj.Manual
-    # TODO - maybe add a loading real-time streaming data feature?
+    # maybe add a loading real-time streaming data feature?
     parser.add_argument('-l', '--load', help='JSON file path: specifies multiple data sources i.e. data_source_manifest.json') 
     parser.add_argument('-t', '--test', default=False, action='store_true', help='Whether or not to run test')
+    parser.add_argument('-er', '--erd', default=None, help='Plot a ERD and save it at your current work dir')
     args = parser.parse_args()
     main(args)

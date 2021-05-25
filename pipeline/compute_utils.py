@@ -33,7 +33,7 @@ def get_sta(stimulation:dict, movie:np.ndarray, spike_movie_time:float, n_delays
     
     return sta
 
-def get_frame_idx(spike_movie_time:float, fps:float):
+def get_frame_idx(spike_movie_time:float, fps:float)->int:
     """ Get the frame index by time """
     return math.ceil(spike_movie_time*fps)
 
