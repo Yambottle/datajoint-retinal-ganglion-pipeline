@@ -237,7 +237,7 @@ python ./visualization/app.py
 - setup.py is not ready
 - logger is not ready
 - DataModel-Loader can still be optimized
-- STRF calculation has problem
+- STRF calculation/storage has uncertainty
 
 [Back To Top](#datajoint-retinal-ganglion-pipeline)
 
