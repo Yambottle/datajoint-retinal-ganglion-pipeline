@@ -10,7 +10,7 @@ import traceback
 logger = logging.getLogger(__name__)
 
 def test():
-    from ingest.experiment import Session, Subject, Stimulation, SpikeGroup, Spike
+    from rg_pipeline.ingest.experiment import Session, Subject, Stimulation, SpikeGroup, Spike
 
     print(Subject.describe())
     print(Subject.fetch())
@@ -31,6 +31,7 @@ def plot_erd(tpath:str):
     """
     # schema = dj.Schema(dj.config['schema'])
     # dj.ERD(schema).save(os.path.join(tpath, 'ERD.svg'), format='svg') # Error
+    print("There is a dependency error in dj.ERD for macOS: 'dot' not found")
     pass
 
 def load(datasource_manifest_path:str):
@@ -41,7 +42,7 @@ def load(datasource_manifest_path:str):
     Prevent confusing terms such as metadata: https://docs.datajoint.io/python/concepts/02-Terminology.html#metadata
     """
     # in-function import after set_config() can set schema dynamically
-    import load_utils
+    from rg_pipeline import load_utils
     with open(datasource_manifest_path, 'rb') as datasource_json:
         datasources = json.load(datasource_json)
     try:
@@ -61,7 +62,7 @@ def build(is_clean:bool):
     :param is_clean: Drop tables or not
     """
     # in-function import after set_config() can set schema dynamically
-    from ingest.experiment import Session, Subject, Stimulation, SpikeGroup, Spike
+    from rg_pipeline.ingest.experiment import Session, Subject, Stimulation, SpikeGroup, Spike
     subject = Subject()
     subject.describe()
     session = Session()
@@ -117,7 +118,7 @@ def main(args):
             tpath = os.path.join(os.getcwd(), args.erd)
             plot_erd(tpath)
 
-if __name__ == "__main__":
+def parse_args_for_main(app_home=os.path.realpath(__file__+'/../..')):
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', default=None, help='DataJoint database config file path')
     parser.add_argument('-db', '--database', default=None, help='DataJoint database host')
@@ -135,3 +136,6 @@ if __name__ == "__main__":
     parser.add_argument('-er', '--erd', default=None, help='Plot a ERD and save it at your current work dir')
     args = parser.parse_args()
     main(args)
+
+if __name__ == "__main__":
+    parse_args_for_main(app_home=os.path.realpath(__file__+'/../..'))

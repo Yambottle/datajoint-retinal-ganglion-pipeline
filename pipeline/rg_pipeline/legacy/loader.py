@@ -5,7 +5,7 @@ import pickle
 import os
 import traceback
 
-from ingest.experiment import Session, Stimulation
+from rg_pipeline.ingest.experiment import Session, Stimulation
 
 ## This implementation is not able to accept user's customized loading process, since the data's format is not standardized 
 # def load(datasource_manifest_path:str):

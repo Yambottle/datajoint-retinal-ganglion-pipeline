@@ -2,8 +2,8 @@ import os
 import pickle
 import numpy as np
 
-from ingest.experiment import Session, Subject, Stimulation, SpikeGroup, Spike
-import compute_utils as cpt_util
+from rg_pipeline.ingest.experiment import Session, Subject, Stimulation, SpikeGroup, Spike
+import rg_pipeline.compute_utils as cpt_util
 
 def load_file_pickle(datasource:dict):
     """
