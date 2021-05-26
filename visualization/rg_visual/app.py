@@ -11,78 +11,80 @@ import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
 import pandas as pd
-
-# TODO - fix module importing when setup.py
 import os
 import sys
-sys.path.append('./')
-import datajoint as dj
-# TODO - config needs to be imported in a different way
-from pipeline.run import set_config
+import argparse
 import configparser
-config = configparser.ConfigParser()
-config.read(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.ini'))
-set_config(config['DEFAULT']['database'], config['DEFAULT']['user'], config['DEFAULT']['pwd'])
-from pipeline.ingest.experiment import Session, Subject, Stimulation, SpikeGroup, Spike
-from pipeline import compute_utils as cpt_uils
 
-import plot_utils
+import datajoint as dj
+from rg_pipeline.run import set_config
+from rg_pipeline import compute_utils as cpt_uils
+from rg_visual import plot_utils
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css', 'https://codepen.io/chriddyp/pen/brPBPO.css']
-
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
+def get_session_options()->list:
+    """
+    Get session options for the session dropdown list
+    """
+    from rg_pipeline.ingest.experiment import Session, Subject, Stimulation, SpikeGroup, Spike
+    session = Session()
+    subject = Subject()
+    query = session * subject
+    sessions = query.fetch(as_dict=True)
+    session_options = []
+    for session in sessions:
+        session_options.append({
+            'label':'Subject: {} | Sample Number: {} | Session Date: {}'.format(
+                session['subject_name'], 
+                session['sample_number'], 
+                session['session_date']
+            ), 
+            'value':session['session_id']
+        })
+    return session_options
 
-session = Session()
-subject = Subject()
-query = session * subject
-sessions = query.fetch(as_dict=True)
-session_options = []
-for session in sessions:
-    session_options.append({
-        'label':'Subject: {} | Sample Number: {} | Session Date: {}'.format(
-            session['subject_name'], 
-            session['sample_number'], 
-            session['session_date']
-        ), 
-        'value':session['session_id']
-    })
+app.layout = html.Div(children=["Loading"])
+def get_layout():
+    session_options = get_session_options()
+    layout = html.Div(children=[
+        html.H1(children='Retinal Ganglion Cell Experiment Visualization - Drew Yang'),
+        dcc.Dropdown(
+            id='session-dropdown',
+            options=session_options,
+            placeholder='Select a session'
+        ),
+        dcc.Dropdown(
+            id='stimulation-dropdown',
+            options=[],
+            placeholder='Select a stimulation'
+        ),
+        dcc.Dropdown(
+            id='spike-group-dropdown',
+            options=[],
+            placeholder='Select a spike group'
+        ),
+        dcc.Dropdown(
+            id='spike-dropdown',
+            options=[],
+            placeholder='Select a spike'
+        ),
+        dcc.Input(id='delay-input', type='number', min=1, placeholder='Number of frames that are previously from the selected spike', style={'width':'500px'}),
+        html.P(id='warning', children='', style={'color':'orange'}),
+        html.P(id='error', children='', style={'color':'red'}),
+        dcc.Graph(
+            id='spike-time-graph',
+            figure=go.Figure()
+        ),
+        dcc.Graph(
+            id='sta-graph',
+            figure=go.Figure()
+        )
+    ])
+    return layout
 
 
-app.layout = html.Div(children=[
-    html.H1(children='Retinal Ganglion Cell Experiment Visualization - Drew Yang'),
-    dcc.Dropdown(
-        id='session-dropdown',
-        options=session_options,
-        placeholder='Select a session'
-    ),
-    dcc.Dropdown(
-        id='stimulation-dropdown',
-        options=[],
-        placeholder='Select a stimulation'
-    ),
-    dcc.Dropdown(
-        id='spike-group-dropdown',
-        options=[],
-        placeholder='Select a spike group'
-    ),
-    dcc.Dropdown(
-        id='spike-dropdown',
-        options=[],
-        placeholder='Select a spike'
-    ),
-    dcc.Input(id='delay-input', type='number', min=1, placeholder='Number of frames that are previously from the selected spike', style={'width':'500px'}),
-    html.P(id='warning', children='', style={'color':'orange'}),
-    html.P(id='error', children='', style={'color':'red'}),
-    dcc.Graph(
-        id='spike-time-graph',
-        figure=go.Figure()
-    ),
-    dcc.Graph(
-        id='sta-graph',
-        figure=go.Figure()
-    )
-])
 
 @app.callback(
     [
@@ -94,6 +96,7 @@ app.layout = html.Div(children=[
     ],
 )
 def update_stimulation_options(session_value):
+    from rg_pipeline.ingest.experiment import Session, Subject, Stimulation, SpikeGroup, Spike
     if session_value:
         stimulation_options = []
         stimulation = Stimulation()
@@ -125,6 +128,7 @@ def update_stimulation_options(session_value):
     ],
 )
 def update_spike_group_options(stimulation_value):
+    from rg_pipeline.ingest.experiment import Session, Subject, Stimulation, SpikeGroup, Spike
     if stimulation_value:
         spike_group_options = []
         spike_group = SpikeGroup()
@@ -152,6 +156,7 @@ def update_spike_group_options(stimulation_value):
     ],
 )
 def update_spike_options(spike_group_value):
+    from rg_pipeline.ingest.experiment import Session, Subject, Stimulation, SpikeGroup, Spike
     if spike_group_value:
         spike_options = []
         spike = Spike()
@@ -189,6 +194,8 @@ def update_spike_options(spike_group_value):
     ]
 )
 def update_spike_time(spike_value, delay_value, spike_group_value, stimulation_value, session_value, n_delays):
+    from rg_pipeline.ingest.experiment import Session, Subject, Stimulation, SpikeGroup, Spike
+    # from rg_visual import plot_utils
     if spike_value:
         stimulation = Stimulation()
         stimulation_query = stimulation & 'stimulation_id = "{}"'.format(stimulation_value)
@@ -227,5 +234,21 @@ def update_spike_time(spike_value, delay_value, spike_group_value, stimulation_v
         return frame_fig, sta_fig, error_msg, warning_msg
     return go.Figure(), go.Figure(), "", ""
 
-if __name__ == '__main__':
+def main(args):
+    if args.config and os.path.exists(args.config):
+        config = configparser.ConfigParser()
+        config.read(args.config)
+        set_config(config['DEFAULT']['database'], config['DEFAULT']['user'], config['DEFAULT']['pwd'])
+    else:
+        raise FileNotFoundError("Datajoint database config file not found.")
+    app.layout = get_layout
     app.run_server(debug=True, host='0.0.0.0')
+
+def parse_args_for_main(app_home=os.path.realpath(__file__+'/../..')):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--config', default=None, help='DataJoint database config file path')
+    args = parser.parse_args()
+    main(args)
+
+if __name__ == '__main__':
+    parse_args_for_main(app_home=os.path.realpath(__file__+'/../..'))

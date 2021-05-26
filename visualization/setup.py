@@ -2,7 +2,7 @@ import os
 from setuptools import setup, find_packages, Extension
 from setuptools.command.build_py import build_py as build_py_orig
 
-package_name = r"rg-pipeline"
+package_name = r"rg_visual"
 here = os.path.dirname(os.path.abspath(__file__))
 
 # requirements.txt -> install_requires
@@ -16,11 +16,10 @@ else:
 # package list
 packages = find_packages(where='.', exclude=(), include=('*',))
 
-
 setup(
     name=package_name,
     version="1.0",
-    description='Datajoint schemas for retinal ganglion experiments',
+    description='Datajoint visualization for retinal ganglion experiments',
     author='Drew Yang',
     author_email='drew.yang.dev@gmail.com',
     zip_safe = False,
