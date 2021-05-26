@@ -17,6 +17,7 @@ import os
 import sys
 sys.path.append('./')
 import datajoint as dj
+# TODO - config needs to be imported in a different way
 from pipeline.run import set_config
 import configparser
 config = configparser.ConfigParser()

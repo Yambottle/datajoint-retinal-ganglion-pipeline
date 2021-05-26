@@ -235,6 +235,7 @@ python ./visualization/app.py
 ---
 
 - setup.py is not ready
+- documentation needs updates
 - logger is not ready
 - DataModel-Loader can still be optimized
 - STRF calculation/storage has uncertainty
