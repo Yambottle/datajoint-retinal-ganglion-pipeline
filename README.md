@@ -14,18 +14,46 @@
     - [Data Loader](#data-loader)
         - [Legacy Loader](#legacy-loader)
         - [Data Loading Module](#data-loading-module)
-    - [Commands to work with the pipeline](#commands-to-work-with-the-pipeline)
+    - [Commands to work with the pipeline component](#commands-to-work-with-the-pipeline-component)
 - [STRF Calculation](#strf-calculation)
 - [Visualization](#visualization)
-    - [Plotly Dash Server](#plotly-dash-server)
+    - [Commands to work with the visualization component](#commands-to-work-with-the-visualization-component)
     - [Plotting Module](#plotting-module)
-- [Exploration](#exploration)
+- [Notebook Exploration](#notebook-exploration)
 
 ---
 
 ## Preparation
 
+##### Clone this project
 ```
+git clone <repository>
+```
+
+##### Install the pipeline component
+```
+cd ~/pipeline
+make wheel
+pip install ./dist/*.whl
+# make sure your python environment's /bin is added to system path
+rg_pipeline -h
+```
+[Example Commands](#commands-to-work-with-the-pipeline-component)
+
+##### Install the visualization component
+> Dependency: Please [install the pipeline component](#install-the-pipeline-component) at first
+```
+cd ~/visualization
+make wheel
+pip install ./dist/*.whl
+# make sure your python environment's /bin is added to system path
+rg_visual -h
+```
+[Example Commands](#commands-to-work-with-the-visualization-component)
+
+##### Install requirements for notebooks
+```
+cd ~/notebooks
 pip install -r requirements.txt
 ```
 
@@ -41,7 +69,7 @@ Data source manifest is designed to register multiple datasources with multiple 
 > Note: Currently, it only supports pickle files.
 
 ```
-# ~/data_source_manifest.json 
+# ~/pipeline/data_source_manifest.json 
 [{
     "type": "category/type", 
     "access": "the access of the data source"
@@ -73,7 +101,7 @@ Data source manifest is designed to register multiple datasources with multiple 
 ![ERD](doc/erd.png)
 
 ##### Model Definition
-`~/pipeline/ingest/experiment.py`
+`~/pipeline/rg_pipeline/ingest/experiment.py`
 
 - Subject
     - *PK* subject_id
@@ -134,11 +162,11 @@ FileNotFoundError: [Errno 2] "dot" not found in path.
 #### Data Loader
 
 ##### Legacy Loader
-`~/legacy/loader.py`
+`~/pipeline/rg_pipeline/legacy/loader.py`
 Initially, I wanted to make a general universal loader that can load multiple data types/data sources without specifying the implementation depending on how data looks like(content formats). However, this is only possible when the coming data follows a common industrial or academic format. So that there is no big difference than making it functional.
 
 ##### Data Loading Module
-`~/pipeline/load_utils.py`
+`~/pipeline/rg_pipeline/load_utils.py`
 
 - `load_<category>_<type>(datasource:dict)`
     - `load_file_pickle(datasource:dict)`
@@ -158,24 +186,27 @@ Initially, I wanted to make a general universal loader that can load multiple da
 
 [Back To Top](#datajoint-retinal-ganglion-pipeline)
 
-#### Commands to work with the pipeline
+#### Commands to work with the pipeline component
+[Installation](#install-the-pipeline-component)
 ```
 # schema is set dynamically as 'USER_retinal'
 
-# credential config(optional)
-python ./pipeline/run.py -c CONFIG_INI_PATH
-# build tables
-python ./pipeline/run.py -db tutorial-db.datajoint.io -u USERNAME -p PASSWORD -b
-# clean up tables
-python ./pipeline/run.py -db tutorial-db.datajoint.io -u USERNAME -p PASSWORD -b -cln
-# load data
-python ./pipeline/run.py -db tutorial-db.datajoint.io -u USERNAME -p PASSWORD -b -l ./pipeline/data_source_manifest.json
-# load data with log
-python ./pipeline/run.py -db tutorial-db.datajoint.io -u USERNAME -p PASSWORD -b -l ./pipeline/data_source_manifest.json > loading.log
-# test
-python ./pipeline/run.py -db tutorial-db.datajoint.io -u USERNAME -p PASSWORD -t
-# save dj.ERD as svg - Error
-python ./pipeline/run.py -db tutorial-db.datajoint.io -u USERNAME -p PASSWORD -er CWD
+# Credential config(optional): easier for debugging
+# Required: make a credential config file i.e. ~/pipeline/config.ini
+rg_pipeline -c <CONFIG_INI_PATH>
+# Input credential directly: easier for automation(CI/CD)
+# Build tables
+rg_pipeline -db tutorial-db.datajoint.io -u <USERNAME> -p <PASSWORD> -b
+# Clean up tables
+rg_pipeline -db tutorial-db.datajoint.io -u <USERNAME> -p <PASSWORD> -b -cln
+# Load data
+rg_pipeline -db tutorial-db.datajoint.io -u <USERNAME> -p <PASSWORD> -b -l <DATASOURCE_MANIFEST_JSON_PATH>
+# Load data with log
+rg_pipeline -db tutorial-db.datajoint.io -u <USERNAME> -p <PASSWORD> -b -l <DATASOURCE_MANIFEST_JSON_PATH> > <LOG_PATH>
+# Test
+rg_pipeline -db tutorial-db.datajoint.io -u <USERNAME> -p <PASSWORD> -t
+# Save dj.ERD as svg - dj.ERD Error
+rg_pipeline -db tutorial-db.datajoint.io -u <USERNAME> -p <PASSWORD> -er <DIR>
 ```
 
 [Back To Top](#datajoint-retinal-ganglion-pipeline)
@@ -190,7 +221,7 @@ Based on the task description and the wiki's explanation of [STA](https://en.wik
 For example, a spike detected at 3.5 seconds, and at that moment, the stimulus movie is playing frame N. So, if the STRF delay is 5 frames, then the STRF = avg(frame N-4 ~ N). The final result should be a 'blur' frame that has the same pixel height/width as the stimulus movie.
 
 #### Computation Module
-`~/pipeline/compute_utils.py`
+`~/pipeline/rg_pipeline/compute_utils.py`
 - `get_frame_idx(spike_movie_time:float, fps:float)->int`: from spike detected time -> spike-movie relative time -> spike frame index 
 - `get_frame_2darray(stimulation:dict, movie:np.ndarray, n_frames:int)->np.ndarray`: get spike frame from spike frame index
 - `get_sta(stimulation:dict, movie:np.ndarray, spike_movie_time:float, n_delays:int=STA_DELAY)->np.ndarray`: get an average of a number/n_delays of previous frames before the spike frame
@@ -201,18 +232,22 @@ For example, a spike detected at 3.5 seconds, and at that moment, the stimulus m
 
 ## Visualization
 
-#### Plotly Dash Server
+#### Commands to work with the visualization component
+[Installation](#install-the-visualization-component)
 ```
-# Required: setup credential config file ~/visualization/config.ini
-python ./visualization/app.py
+# Credential config(optional): easier for debugging
+# Required: make a credential config file i.e. ~/visualization/config.ini
+rg_visual -c <CONFIG_INI_PATH>
+# Input credential directly: easier for automation(CI/CD)
+rg_visual -db tutorial-db.datajoint.io -u <USERNAME> -p <PASSWORD>
 # then access http://localhost:8050
-# other people under the same network can access http://<YOUR_IP>:8050
+# other people under the same network can access http://<YOUR_LOCAL_IP>:8050
 ```
 ![visualization_example1](doc/v1.png)
 ![visualization_example2](doc/v2.png)
 
 #### Plotting Module
-`./visualization/plot_utils.py`
+`./visualization/rg_visual/plot_utils.py`
 - `plot_frame(n_frames:int, frame:np.ndarray)->go.Figure()`: plot the current selected spike's frame
 - `plot_sta(n_frames:int, n_frames_of_delay:int, sta:np.ndarray)->go.Figure()`: plot the STA that averaged by the selected spike's frame and the number of previous frames
 
@@ -220,13 +255,13 @@ python ./visualization/app.py
 
 ---
 
-## Exploration
+## Notebook Exploration
 ```
-# STRF, visualization
+# STRF exploration, initial visualization
 ~/notebooks/visualization_explore.ipynb
-# data set
+# dataset exploration
 ~/notebooks/data_discovery.ipynb
-# database config
+# database config test
 ~/notebooks/db_conn_test.ipynb
 ```
 
@@ -234,11 +269,9 @@ python ./visualization/app.py
 
 ---
 
-- setup.py is not ready
-- documentation needs updates
 - logger is not ready
-- DataModel-Loader can still be optimized
-- STRF calculation/storage has uncertainty
+- DataModel-Loader design can still be optimized
+- STRF calculation/storage has uncertainty, so that has not been loaded to database yet
 
 [Back To Top](#datajoint-retinal-ganglion-pipeline)
 
