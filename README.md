@@ -137,7 +137,7 @@ Data source manifest is designed to register multiple datasources with multiple 
 > Note: Data Loading part can still be optimized by Model Definition that using dj.Imported/dj.Computed https://tutorials.datajoint.io/beginner/building-first-pipeline/python/importing-data.html
 
 ##### Found Error on macOS
-Error: dj.ERD for macOS 11.1 dependency error
+Error: seems like pydot is not compatible with macOS 11.1, already issued a bug at [#924](https://github.com/datajoint/datajoint-python/issues/924#issue-901881841)
 ```
 Traceback (most recent call last):
   File "./pipeline/run.py", line 137, in <module>
