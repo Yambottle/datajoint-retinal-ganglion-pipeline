@@ -240,13 +240,16 @@ def main(args):
         config.read(args.config)
         set_config(config['DEFAULT']['database'], config['DEFAULT']['user'], config['DEFAULT']['pwd'])
     else:
-        raise FileNotFoundError("Datajoint database config file not found.")
+        set_config(args.database, args.user, args.pwd)
     app.layout = get_layout
     app.run_server(debug=True, host='0.0.0.0')
 
 def parse_args_for_main(app_home=os.path.realpath(__file__+'/../..')):
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', default=None, help='DataJoint database config file path')
+    parser.add_argument('-db', '--database', default=None, help='DataJoint database host')
+    parser.add_argument('-u', '--user', default=None, help='DataJoint database user')
+    parser.add_argument('-p', '--pwd', default=None, help='DataJoint database password')
     args = parser.parse_args()
     main(args)
 
